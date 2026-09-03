@@ -17,6 +17,12 @@ unchanged: a router note, one home per topic, newest wins.
 ```bash
 git clone https://github.com/eliferres/phone-body.git
 cd phone-body
+./demo/run.sh    # teaches the desk body a fact, syncs, the phone body answers with it
+```
+
+### By hand
+
+```bash
 work=$(mktemp -d)                       # two bodies, two copies of the brain
 cp -R demo/brain "$work/desk-brain"
 cp -R demo/brain "$work/phone-brain"

@@ -153,6 +153,84 @@ class Sync(VaultCase):
         result = self.sync()
         self.assertEqual("", result.stdout.strip())
 
+    def test_sync_sh_actually_overwrites_the_loser_on_disk(self):
+        # NewestWins above only exercises brain_module.resolve() in-process
+        # (dry_run=True, no rsync). This runs the real sync.sh end to end and
+        # checks the transport half: the older file's bytes on disk, not just
+        # the sync-log line, end up matching the winner.
+        self.touch(self.desk_root, "memory/learned.md", "desk wins\n", mtime=2_000_000)
+        self.touch(self.phone_root, "memory/learned.md", "phone loses\n", mtime=1_000_000)
+        self.sync()
+        self.assertEqual("desk wins\n", (self.phone_root / "memory/learned.md").read_text())
+        self.assertEqual("desk wins\n", (self.desk_root / "memory/learned.md").read_text())
+
+    def test_a_file_deleted_on_one_side_drifts_back(self):
+        # sync.sh's rsync flags carry no --delete (see the comment above
+        # rsync_flags in sync.sh), so a locally removed note is not a
+        # propagated deletion - the other side's copy repopulates it. That is
+        # drift, not a bug, but it must stay true on purpose, not by accident.
+        (self.phone_root / "memory/learned.md").unlink()
+        self.sync()
+        self.assertTrue((self.phone_root / "memory/learned.md").exists())
+
+
+class SyncScriptUsage(VaultCase):
+    def test_missing_arguments_exits_2(self):
+        result = subprocess.run(
+            [str(SKELETON / "sync.sh"), str(self.desk_root)],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(2, result.returncode)
+        self.assertIn("usage", result.stderr)
+
+    def test_unknown_flag_exits_2(self):
+        result = subprocess.run(
+            [str(SKELETON / "sync.sh"), str(self.desk_root), str(self.phone_root), "--bogus"],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(2, result.returncode)
+        self.assertIn("usage", result.stderr)
+
+
+class BotMessageHandling(VaultCase):
+    def test_bot_replies_to_every_message_in_one_batch(self):
+        transport = body_bot.OfflineTransport(["remember x is 1", "remember y is 2"])
+        sent = []
+        transport.send = lambda chat, text: sent.append(text)
+        body_bot.serve(self.desk, transport)
+        self.assertEqual(2, len(sent))
+        self.assertIn("Remembered", sent[0])
+        self.assertIn("Remembered", sent[1])
+
+    def test_bot_reads_messages_from_stdin_when_no_file_given(self):
+        # --messages is optional (body_bot.py falls back to sys.stdin.read());
+        # every other test in this file goes through --messages, leaving that
+        # branch unexercised.
+        result = subprocess.run(
+            [sys.executable, str(SKELETON / "body_bot.py"), "--brain", str(self.desk_root)],
+            input="remember stdin works too\n",
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertIn("Remembered", result.stdout)
+
+    def test_bot_ignores_blank_lines_in_the_message_file(self):
+        raw = "remember blank lines are skipped\n\n   \nquit is not special here\n"
+        with tempfile.NamedTemporaryFile("w", suffix=".txt", delete=False) as fh:
+            fh.write(raw)
+            path = fh.name
+        self.addCleanup(os.unlink, path)
+        result = subprocess.run(
+            [sys.executable, str(SKELETON / "body_bot.py"), "--brain", str(self.desk_root), "--messages", path],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual(2, result.stdout.count("[phone ->"))
+
 
 if __name__ == "__main__":
     unittest.main()
