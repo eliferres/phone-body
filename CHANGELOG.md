@@ -11,6 +11,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 - Added tests that run sync.sh end to end: a losing write overwritten on disk, a locally deleted file drifting back, and usage errors.
 - Added coverage for bot message handling: a multi-message batch, blank-line filtering, and the stdin fallback.
 - Added demo/run.sh, a runnable version of the quick start's own ten lines.
+- Added macos-latest to the CI matrix alongside ubuntu-latest.
 
 ### Changed
 - Changed the README to lead with the one-command quick start, with the original steps kept in a By Hand section right below it.
