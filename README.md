@@ -1,11 +1,6 @@
 # phone-body
 
-Reach your assistant at your desk or from your pocket and get the same entity
-either way — same memory, same rules, same answer. Not a desktop agent plus a
-bot that half-knows you: one brain in a plain-file vault, two thin bodies that
-carry messages to it, and a two-way sync that keeps them honest. This repo is
-the architecture writeup plus a runnable skeleton you can drive offline in a
-minute, no credentials and no server.
+The same assistant at your desk and in your pocket, with the same memory, rules, and answers. phone-body is one brain in a plain-file vault, two thin bodies that carry messages to it, and a two-way sync that catches drift between them. The repo is the architecture writeup plus a skeleton you can run offline in a minute.
 
 The memory format is [agent-memory-vault](https://github.com/eliferres/agent-memory-vault),
 unchanged: a router note, one home per topic, newest wins.
@@ -36,8 +31,8 @@ python3 skeleton/body_bot.py --brain "$work/phone-brain" --messages demo/message
 ```
 
 The bot answers with what you told the desktop. Zero dependencies, Python 3.9+,
-`rsync` and `bash` for the sync. The full tour — including forcing a conflict and
-reading the resolution out of the sync log — is
+`rsync` and `bash` for the sync. The full tour (including forcing a conflict and
+reading the resolution out of the sync log) is
 [demo/WALKTHROUGH.md](demo/WALKTHROUGH.md).
 
 ## The four principles
@@ -47,15 +42,15 @@ rules, decisions and learned facts live there, never in a body's code. The test
 for anything you are about to add: if I deleted this body and stood up a new one,
 would the entity be less than it was? If yes, it belongs in the brain.
 
-**Sync is the spine.** The vault syncs both ways on a short interval — minutes,
+**Sync is the spine.** The vault syncs both ways on a short interval: minutes,
 not hours. Conflicts resolve newest-wins per file, and every resolution is
 written to a sync log, so a lost write is visible instead of silent. Bodies must
 tolerate being minutes stale, which means memory is never the authority for
 anything irreversible.
 
 **Bodies are disposable.** A body holds two things: its own credentials, and a
-path to the brain. Standing up a new one — second laptop, new bot, borrowed
-terminal — is configuration, not surgery, because there is no logic to port.
+path to the brain. Standing up a new one (second laptop, new bot, borrowed
+terminal) is configuration, not surgery, because there is no logic to port.
 
 **One set of rules.** Guardrails belong to the entity, not the machine. A
 spending limit the desk enforces and the phone ignores is a bypass that lives in
@@ -97,8 +92,8 @@ to the brain, hold nothing else.
 | `docs/architecture.md` | The writeup: diagram, four principles, failure modes. |
 | `docs/wiring.md` | How to replace the offline transport with a real chat bot. |
 | `skeleton/brain.py` | The vault: read, recall, remember, newest-wins, sync log. |
-| `skeleton/body_desktop.py` | Desktop body — a REPL. Carries messages, owns nothing. |
-| `skeleton/body_bot.py` | Phone body — the same loop, long-polling shaped, offline. |
+| `skeleton/body_desktop.py` | Desktop body: a REPL. Carries messages, owns nothing. |
+| `skeleton/body_bot.py` | Phone body: the same loop, long-polling shaped, offline. |
 | `skeleton/sync.sh` | Two-way rsync transport, `--dry-run` supported. |
 | `demo/brain/` | A tiny vault in the memory format, fictional content. |
 | `demo/WALKTHROUGH.md` | Teach one body, sync, ask the other, force a conflict. |
@@ -126,7 +121,7 @@ and recoverable from git when newest-wins takes the write you wanted.
   needing no merge logic and no server; the sync log makes the loss visible, and
   git makes it recoverable, but nothing merges the two versions for you.
 - Interval sync means a body can answer from memory that is minutes old. Fine
-  for recall, wrong for anything irreversible — check the source of truth, not
+  for recall, wrong for anything irreversible. Check the source of truth, not
   memory, before acting.
 - The responder is a stub: it greps the vault. Bring your own model call; the
   skeleton exists to show where it plugs in and what it must not depend on.
