@@ -1,0 +1,17 @@
+[
+  {
+    "cmd": "printf 'remember the launch review moved to Thursday\\nquit\\n' | python3 skeleton/body_desktop.py --brain \"$work/desk-brain\"",
+    "out": "you> [desktop] Remembered, in the brain: the launch review moved to Thursday",
+    "status": 0
+  },
+  {
+    "cmd": "skeleton/sync.sh \"$work/desk-brain\" \"$work/phone-brain\"",
+    "out": "resolved: 2026-09-03T17:15:17Z memory/learned.md — kept desk-brain (mtime 2026-09-03T17:15:17.198Z), overwrote phone-brain (mtime 2026-08-31T01:08:46.541Z)",
+    "status": 0
+  },
+  {
+    "cmd": "python3 skeleton/body_bot.py --brain \"$work/phone-brain\" --messages demo/messages.txt",
+    "out": "[phone -> demo-chat] daily/2026-09-03.md: Learned through the desktop body: the launch review moved to Thursday | memory/learned.md: 2026-09-03 — the launch review moved to Thursday (learned through the desktop body)",
+    "status": 0
+  }
+]
