@@ -17,11 +17,11 @@
   <text x="92" y="26" class="dim" font-size="14">taste, enforced</text>
   <text x="24" y="80"><tspan class="p">$</tspan><tspan class="cmd" dx="8">printf 'remember the launch review moved to \</tspan></text>
   <text x="24" y="112" class="cmd">    Thursday\nquit\n' | python3 skeleton/body_desktop.py \</text>
-  <text x="24" y="144" class="cmd">    --brain $TMP/desk-brain</text>
+  <text x="24" y="144" class="cmd">    --brain &quot;$work/desk-brain&quot;</text>
   <text x="24" y="176" class="dim">you&gt; [desktop] Remembered, in the brain: the launch review…</text>
-  <text x="24" y="208"><tspan class="p">$</tspan><tspan class="cmd" dx="8">skeleton/sync.sh $TMP/desk-brain $TMP/phone-brain</tspan></text>
-  <text x="24" y="240" class="good">resolved: 2026-09-03T16:46:00Z memory/learned.md - kept des…</text>
-  <text x="24" y="272"><tspan class="p">$</tspan><tspan class="cmd" dx="8">python3 skeleton/body_bot.py --brain $TMP/phone-brain \</tspan></text>
+  <text x="24" y="208"><tspan class="p">$</tspan><tspan class="cmd" dx="8">skeleton/sync.sh &quot;$work/desk-brain&quot; &quot;$work/phone-brain&quot;</tspan></text>
+  <text x="24" y="240" class="good">resolved: 2026-09-03T17:15:17Z memory/learned.md — kept des…</text>
+  <text x="24" y="272"><tspan class="p">$</tspan><tspan class="cmd" dx="8">python3 skeleton/body_bot.py --brain &quot;$work/phone-brain&quot; \</tspan></text>
   <text x="24" y="304" class="cmd">    --messages demo/messages.txt</text>
   <text x="24" y="336" class="dim">[phone -&gt; demo-chat] daily/2026-09-03.md: Learned through t…</text>
 </svg>
