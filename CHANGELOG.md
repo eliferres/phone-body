@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
 
+Nothing yet.
+
+## [1.1.0](https://github.com/eliferres/phone-body/releases/tag/v1.1.0) - 2026-09-03
+
 ### Added
 - Added a terminal demo to the README's first screen, showing body_desktop.py teaching a fact, a real sync.sh run, and body_bot.py answering with what the desktop learned.
 - Added tests that run sync.sh end to end: a losing write overwritten on disk, a locally deleted file drifting back, and usage errors.
