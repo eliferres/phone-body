@@ -4,7 +4,7 @@ Welcome things:
 
 - New body adapters (a Discord body, an SMS body) that keep the contract: own
   credentials, a path to the brain, nothing else.
-- A rules-enforcement layer inside `handle()`, with tests — the biggest honest
+- A rules-enforcement layer inside `handle()`, with tests: the biggest honest
   gap in the skeleton.
 - Fixes to anything the README or `docs/architecture.md` claims that turns out
   not to be true.
