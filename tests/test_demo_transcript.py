@@ -50,8 +50,6 @@ DATED = [
     re.compile(r"memory/learned\.md: (\d{4}-\d\d-\d\d) \u2014 "),
 ]
 
-# Rows of the picture: long commands wrap at this width into " \"-ended chunks.
-PICTURE_CMD_WIDTH = 58
 ELLIPSIS = "…"
 SVG_NS = "{http://www.w3.org/2000/svg}"
 
@@ -158,34 +156,38 @@ def replay(entries):
             shutil.rmtree(work, ignore_errors=True)
 
 
-def wrapped_command_rows(cmd, width=PICTURE_CMD_WIDTH):
-    if len(cmd) <= width:
-        return [cmd]
-    rows, current = [], ""
-    for word in cmd.split(" "):
-        candidate = (current + " " + word).strip()
-        if len(candidate) > width and current:
-            rows.append(current + " \\")
-            current = word
-        else:
-            current = candidate
-    if current:
-        rows.append(current)
-    return rows
+def rejoin(chunks):
+    """Undo the drawing's wrapping: a wrapped row ends in " \\" and the chunks
+    rejoin with the one space the break ate. Read back rather than re-derived,
+    so where the renderer breaks a line is its business, not this test's."""
+    return " ".join(c[:-2] if c.endswith(" \\") else c for c in chunks)
+
+
+def shows_whole(row, line):
+    """A row is the output line itself, or that line cut once at the end."""
+    if row == line:
+        return True
+    head = row[: -len(ELLIPSIS)]
+    return (row.endswith(ELLIPSIS) and row.count(ELLIPSIS) == 1
+            and len(head) < len(line) and line.startswith(head))
 
 
 def picture_rows(svg_path):
-    """Text rows under the title bar; the title bar label carries its own font size."""
+    """(kind, text) per drawn row, in order: "cmd" for a prompted command row,
+    "cont" for its wrapped continuation, "out" for output. The title bar label
+    is chrome, and the only row carrying its own font size."""
     rows = []
     for text in ET.parse(svg_path).getroot().iter(SVG_NS + "text"):
         if text.get("font-size"):
             continue
         spans = text.findall(SVG_NS + "tspan")
         if spans:
-            rows.append(spans[-1].text or "")
-        else:
+            rows.append(("cmd", spans[-1].text or ""))
+        elif text.get("class") == "cmd":
             raw = text.text or ""
-            rows.append(raw[4:] if text.get("class") == "cmd" and raw.startswith("    ") else raw)
+            rows.append(("cont", raw[4:] if raw.startswith("    ") else raw))
+        else:
+            rows.append(("out", text.text or ""))
     return rows
 
 
@@ -222,29 +224,50 @@ class DemoTranscript(unittest.TestCase):
             for field in ("cmd", "out"):
                 self.assertNotRegex(entry[field], r"/Users/|/private/var|/var/folders|/tmp/tmp")
 
-    def test_every_picture_row_comes_from_the_transcript(self):
-        # Both sides lose their timestamps first: a regenerated transcript
-        # carries the new run's clock, and the picture still carries the clock
-        # of the run it was drawn from.
-        out_lines = [
-            without_dates(without_clock(line))
-            for entry in self.entries
-            for line in entry["out"].splitlines()
-        ]
-        cmd_rows = [row for entry in self.entries for row in wrapped_command_rows(entry["cmd"])]
+    def test_the_picture_shows_whole_entries_in_order(self):
+        """Nothing invented, nothing left out, nothing out of order.
+
+        The picture fits as many whole entries as it can and may stop before
+        the last one, but only between commands: every non-empty output line
+        of an entry it shows is drawn, in order, and no drawn row is left
+        over. Both sides lose their timestamps first: a regenerated transcript
+        carries the new run's clock, and the picture still carries the clock
+        of the run it was drawn from.
+        """
+        redraw = ("demo/terminal.svg is drawn from the transcript by a renderer this "
+                  "repo does not ship, so ask a maintainer to redraw it; never edit "
+                  "the SVG by hand.")
+        plain = lambda text: without_dates(without_clock(text))
         rows = picture_rows(PICTURE)
         self.assertTrue(rows, "the picture has no text rows")
-        for row in rows:
-            shown = row[: -len(ELLIPSIS)] if row.endswith(ELLIPSIS) else row
-            shown = without_dates(without_clock(shown))
-            with self.subTest(row=row):
+        index = 0
+        for entry in self.entries:
+            if index == len(rows):
+                break  # the picture stopped at a command boundary
+            kind, text = rows[index]
+            self.assertEqual(kind, "cmd", f"row {index + 1} should open {entry['cmd']}. {redraw}")
+            chunks = [text]
+            index += 1
+            while index < len(rows) and rows[index][0] == "cont":
+                chunks.append(rows[index][1])
+                index += 1
+            self.assertEqual(plain(rejoin(chunks)), plain(entry["cmd"]),
+                             f"the command rows do not rebuild the recorded command. {redraw}")
+            for line in [l for l in entry["out"].splitlines() if l.strip()]:
+                self.assertLess(index, len(rows),
+                                f"the picture stops inside {entry['cmd']}, before {line!r}. "
+                                f"{redraw}")
+                kind, text = rows[index]
+                self.assertEqual(kind, "out",
+                                 f"row {index + 1} should be output line {line!r}. {redraw}")
                 self.assertTrue(
-                    any(line.startswith(shown) for line in out_lines + cmd_rows),
-                    f"picture row {row!r} traces to nothing in demo/transcript.json. "
-                    "demo/terminal.svg is drawn from the transcript by a renderer this "
-                    "repo does not ship, so ask a maintainer to redraw it; never edit "
-                    "the SVG by hand.",
-                )
+                    shows_whole(plain(text), plain(line)),
+                    f"row {index + 1} is {text!r}, expected {line!r} whole or end-trimmed "
+                    f"with one ellipsis. {redraw}")
+                index += 1
+        self.assertEqual(index, len(rows),
+                         f"{len(rows) - index} drawn row(s) the transcript does not "
+                         f"account for. {redraw}")
 
 
 if __name__ == "__main__":
