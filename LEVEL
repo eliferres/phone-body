@@ -1,0 +1,10 @@
+# What this project is responsible for, and what happens when it breaks.
+level: 1
+owner: Eli Ferres
+monitor: GitHub Actions on every push and pull request; the badge in the README is the health signal. Failures surface as issues.
+rollback: git revert, then re-tag. Installed copies are pinned to a version and are unaffected until the user upgrades.
+migrations: n/a: the tool owns no database and no schema.
+backups: the shared memory is plain files in a directory the operator chooses, backed up by whatever already backs up that directory. There is no other store.
+authz: the chat surface is the real trust boundary, and this repo ships the pattern, not a closed door. A bot wired to a brain answers whoever finds it, so the operator holds an allow-list of chat ids outside the vault, checks it before acting on a message, and drops the rest. The wiring guide makes that step three and says plainly that it is the one people skip.
+logs: the bot is a long-lived process, not a command that exits. It writes one line per message handled and per message dropped to stdout, which the operator's service manager captures; the wiring guide asks for the drops to be logged specifically, because silence there hides an attack.
+alerts: the body exits loudly rather than answering nobody in silence, so the operator's service manager restarting it in a loop is the signal that something is wrong. This repo ships no pager of its own.
