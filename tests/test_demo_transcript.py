@@ -13,6 +13,7 @@ a renderer this repo does not ship: if a regenerated transcript changes what
 the session shows, a maintainer redraws the picture.
 """
 
+import datetime
 import json
 import os
 import re
@@ -30,13 +31,21 @@ PICTURE = REPO / "demo" / "terminal.svg"
 CHECKOUT_PLACEHOLDER = "/path/to/checkout"
 WORK_PLACEHOLDER = "/path/to/work"
 
-# Each pattern is anchored to the one place a volatile value appears, so a
+# Every pattern is anchored to the one place a volatile value appears, so a
 # changed word, file name or winner around it still fails the comparison.
-VOLATILE = [
-    (re.compile(r"^(resolved: )\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ ", re.MULTILINE), r"\1<now> "),
+
+# Clock times cannot be predicted, so they go on both sides of a comparison.
+CLOCK = [
+    (re.compile(r"^(resolved: \d{4}-\d\d-\d\d)T\d\d:\d\d:\d\dZ ", re.MULTILINE), r"\1T<time>Z "),
     (re.compile(r"\(mtime \d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z\)"), "(mtime <mtime>)"),
-    (re.compile(r"\bdaily/\d{4}-\d\d-\d\d\.md: "), "daily/<today>.md: "),
-    (re.compile(r"(memory/learned\.md: )\d{4}-\d\d-\d\d \u2014 "), "\\1<today> \u2014 "),
+]
+
+# Dates, on the other hand, are checked: today's date is substituted into the
+# transcript and the real output has to carry it.
+DATED = [
+    re.compile(r"^resolved: (\d{4}-\d\d-\d\d)T", re.MULTILINE),
+    re.compile(r"\bdaily/(\d{4}-\d\d-\d\d)\.md: "),
+    re.compile(r"memory/learned\.md: (\d{4}-\d\d-\d\d) \u2014 "),
 ]
 
 # Rows of the picture: long commands wrap at this width into " \"-ended chunks.
@@ -45,9 +54,27 @@ ELLIPSIS = "…"
 SVG_NS = "{http://www.w3.org/2000/svg}"
 
 
-def without_volatile(text):
-    for pattern, replacement in VOLATILE:
+def without_clock(text):
+    for pattern, replacement in CLOCK:
         text = pattern.sub(replacement, text)
+    return text
+
+
+def with_todays_dates(text, today=None):
+    """The transcript was captured on the day it was regenerated; the brain
+    writes the date of the run. So the expected text moves to today, and a date
+    the brain got wrong (a frozen clock, a stale note name) still fails."""
+    today = today or datetime.date.today().isoformat()
+    for pattern in DATED:
+        text = pattern.sub(lambda m: m.group(0).replace(m.group(1), today), text)
+    return text
+
+
+def without_dates(text):
+    """For comparing two stored artifacts, the transcript and the picture drawn
+    from it, where neither side can be moved to today."""
+    for pattern in DATED:
+        text = pattern.sub(lambda m: m.group(0).replace(m.group(1), "<date>"), text)
     return text
 
 
@@ -150,11 +177,18 @@ class DemoTranscript(unittest.TestCase):
         for number, (entry, (out, status)) in enumerate(zip(self.entries, results), start=1):
             with self.subTest(entry=number, cmd=entry["cmd"]):
                 self.assertEqual(
-                    without_volatile(entry["out"]),
-                    without_volatile(out),
+                    without_clock(with_todays_dates(entry["out"])),
+                    without_clock(out),
                     f"entry {number} output: expected (transcript) first, actual second",
                 )
                 self.assertEqual(entry["status"], status, f"entry {number} exit status")
+
+    def test_a_date_the_brain_got_wrong_still_fails(self):
+        stored = "[phone -> demo-chat] daily/2026-09-03.md: Learned through the desktop body: x"
+        today = datetime.date.today().isoformat()
+        expected = without_clock(with_todays_dates(stored))
+        self.assertEqual(expected, without_clock(stored.replace("2026-09-03", today)))
+        self.assertNotEqual(expected, without_clock(stored.replace("2026-09-03", "1999-12-31")))
 
     def test_transcript_holds_no_machine_paths(self):
         for entry in self.entries:
@@ -166,7 +200,7 @@ class DemoTranscript(unittest.TestCase):
         # carries the new run's clock, and the picture still carries the clock
         # of the run it was drawn from.
         out_lines = [
-            without_volatile(line)
+            without_dates(without_clock(line))
             for entry in self.entries
             for line in entry["out"].splitlines()
         ]
@@ -175,7 +209,7 @@ class DemoTranscript(unittest.TestCase):
         self.assertTrue(rows, "the picture has no text rows")
         for row in rows:
             shown = row[: -len(ELLIPSIS)] if row.endswith(ELLIPSIS) else row
-            shown = without_volatile(shown)
+            shown = without_dates(without_clock(shown))
             with self.subTest(row=row):
                 self.assertTrue(
                     any(line.startswith(shown) for line in out_lines + cmd_rows),
