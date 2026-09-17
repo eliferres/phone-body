@@ -22,7 +22,7 @@ cp -R demo/brain "$work/phone-brain"
 
 ```bash
 printf 'remember the launch review moved to Thursday\nquit\n' \
-  | python3 skeleton/body_desktop.py --brain "$work/desk-brain"
+  | python3 -m phone_body.body_desktop --brain "$work/desk-brain"
 ```
 
 ```
@@ -36,7 +36,7 @@ brain, not in the body.
 ## 2. Ask the phone body, before the sync
 
 ```bash
-python3 skeleton/body_bot.py --brain "$work/phone-brain" --messages demo/messages.txt
+python3 -m phone_body.body_bot --brain "$work/phone-brain" --messages demo/messages.txt
 ```
 
 ```
@@ -50,7 +50,7 @@ that is two minutes stale.
 ## 3. Sync — dry run first
 
 ```bash
-skeleton/sync.sh "$work/desk-brain" "$work/phone-brain" --dry-run
+phone_body/sync.sh "$work/desk-brain" "$work/phone-brain" --dry-run
 ```
 
 ```
@@ -69,13 +69,13 @@ copy. Nothing was written — the dry run moves no bytes and appends no log line
 Now for real:
 
 ```bash
-skeleton/sync.sh "$work/desk-brain" "$work/phone-brain"
+phone_body/sync.sh "$work/desk-brain" "$work/phone-brain"
 ```
 
 ## 4. Ask the phone body again
 
 ```bash
-python3 skeleton/body_bot.py --brain "$work/phone-brain" --messages demo/messages.txt
+python3 -m phone_body.body_bot --brain "$work/phone-brain" --messages demo/messages.txt
 ```
 
 ```
@@ -96,7 +96,7 @@ Both sides edit the same note before a sync runs. The phone edits second.
 printf -- '- 2025-06-03 — desk says the review is at 10:00\n' >> "$work/desk-brain/memory/learned.md"
 sleep 1
 printf -- '- 2025-06-03 — phone says the review is at 11:00\n' >> "$work/phone-brain/memory/learned.md"
-skeleton/sync.sh "$work/desk-brain" "$work/phone-brain"
+phone_body/sync.sh "$work/desk-brain" "$work/phone-brain"
 tail -1 "$work/desk-brain/system/sync-log.md"
 ```
 

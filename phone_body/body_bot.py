@@ -4,7 +4,7 @@ Identical to the desktop body everywhere it matters — it calls the same handle
 on the same brain. The only difference is the transport, and the transport here
 is offline, so the demo needs no server, no credential and no network:
 
-    python3 body_bot.py --brain ../demo/brain --messages ../demo/messages.txt
+    python3 -m phone_body.body_bot --brain demo/brain --messages demo/messages.txt
 
 docs/wiring.md describes how to replace OfflineTransport with a real chat API.
 """
@@ -15,7 +15,7 @@ import argparse
 import sys
 from pathlib import Path
 
-from brain import handle, open_brain
+from .brain import handle, open_brain
 
 BODY = "phone"
 

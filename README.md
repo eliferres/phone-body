@@ -25,9 +25,9 @@ cp -R demo/brain "$work/desk-brain"
 cp -R demo/brain "$work/phone-brain"
 
 printf 'remember the launch review moved to Thursday\nquit\n' \
-  | python3 skeleton/body_desktop.py --brain "$work/desk-brain"
-skeleton/sync.sh "$work/desk-brain" "$work/phone-brain"
-python3 skeleton/body_bot.py --brain "$work/phone-brain" --messages demo/messages.txt
+  | python3 -m phone_body.body_desktop --brain "$work/desk-brain"
+phone_body/sync.sh "$work/desk-brain" "$work/phone-brain"
+python3 -m phone_body.body_bot --brain "$work/phone-brain" --messages demo/messages.txt
 ```
 
 The bot answers with what you told the desktop. Zero dependencies, Python 3.9+,
@@ -91,10 +91,10 @@ to the brain, hold nothing else.
 |---|---|
 | `docs/architecture.md` | The writeup: diagram, four principles, failure modes. |
 | `docs/wiring.md` | How to replace the offline transport with a real chat bot. |
-| `skeleton/brain.py` | The vault: read, recall, remember, newest-wins, sync log. |
-| `skeleton/body_desktop.py` | Desktop body: a REPL. Carries messages, owns nothing. |
-| `skeleton/body_bot.py` | Phone body: the same loop, long-polling shaped, offline. |
-| `skeleton/sync.sh` | Two-way rsync transport, `--dry-run` supported. |
+| `phone_body/brain.py` | The vault: read, recall, remember, newest-wins, sync log. |
+| `phone_body/body_desktop.py` | Desktop body: a REPL. Carries messages, owns nothing. |
+| `phone_body/body_bot.py` | Phone body: the same loop, long-polling shaped, offline. |
+| `phone_body/sync.sh` | Two-way rsync transport, `--dry-run` supported. |
 | `demo/brain/` | A tiny vault in the memory format, fictional content. |
 | `demo/WALKTHROUGH.md` | Teach one body, sync, ask the other, force a conflict. |
 | `tests/test_brain.py` | Hermetic: temp vaults, real files, no network. |
