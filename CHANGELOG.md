@@ -6,8 +6,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## Unreleased
 
+### Added
+- Added packaging: `pipx install git+https://github.com/eliferres/phone-body` installs the `phone-body-desktop`, `phone-body-bot` and `phone-body-brain` commands, each with `--version`.
+
 ### Changed
 - Renamed the `skeleton/` folder to the `phone_body` package so an install cannot shadow another package; run the bodies with `python3 -m phone_body.body_desktop` and `python3 -m phone_body.body_bot`, and sync with `phone_body/sync.sh`.
+- Changed a wrong `--brain` or `--messages` path to print one line and exit 2 instead of a traceback.
 
 ## [1.1.0](https://github.com/eliferres/phone-body/releases/tag/v1.1.0) - 2026-09-03
 

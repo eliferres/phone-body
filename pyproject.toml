@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "phone-body"
+dynamic = ["version"]
+description = "The same assistant at your desk and in your pocket, with the same memory, rules, and answers."
+readme = "README.md"
+requires-python = ">=3.9"
+license = "MIT"
+authors = [{ name = "Eli Ferres" }]
+
+[project.urls]
+Source = "https://github.com/eliferres/phone-body"
+Changelog = "https://github.com/eliferres/phone-body/blob/main/CHANGELOG.md"
+
+[project.scripts]
+phone-body-brain = "phone_body.brain:main"
+phone-body-desktop = "phone_body.body_desktop:main"
+phone-body-bot = "phone_body.body_bot:main"
+
+[tool.setuptools]
+packages = ["phone_body"]
+
+[tool.setuptools.dynamic]
+version = { attr = "phone_body.__version__" }

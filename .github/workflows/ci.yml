@@ -19,3 +19,10 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Run tests
         run: python -m unittest discover -s tests -v
+      - name: Install and run the installed commands
+        run: |
+          python -m pip install .
+          phone-body-desktop --version
+          work=$(mktemp -d)
+          cp -R demo/brain "$work/desk-brain"
+          printf 'remember the launch review moved to Thursday\nquit\n' | phone-body-desktop --brain "$work/desk-brain"

@@ -97,6 +97,30 @@ class BodyStartup(VaultCase):
         with self.assertRaises(FileNotFoundError):
             brain_module.Brain(self.work)
 
+    def test_a_wrong_brain_path_exits_2_with_one_line(self):
+        result = subprocess.run(
+            [sys.executable, "-m", "phone_body.body_desktop", "--brain", str(self.work / "missing")],
+            capture_output=True,
+            text=True,
+            cwd=REPO,
+        )
+        self.assertEqual(2, result.returncode)
+        self.assertEqual(1, len(result.stderr.splitlines()), result.stderr)
+
+    def test_every_command_reports_the_package_version(self):
+        from phone_body import __version__
+
+        for module, command in [
+            ("phone_body.brain", "phone-body-brain"),
+            ("phone_body.body_desktop", "phone-body-desktop"),
+            ("phone_body.body_bot", "phone-body-bot"),
+        ]:
+            result = subprocess.run(
+                [sys.executable, "-m", module, "--version"], capture_output=True, text=True, cwd=REPO
+            )
+            self.assertEqual(0, result.returncode, result.stderr)
+            self.assertEqual(f"{command} {__version__}\n", result.stdout)
+
 
 class SharedMemory(VaultCase):
     def test_desktop_body_writes_the_fact_into_the_brain(self):

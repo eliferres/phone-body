@@ -11,6 +11,18 @@ unchanged: a router note, one home per topic, newest wins.
 
 ## Quick start
 
+Install the three commands (`phone-body-desktop`, `phone-body-bot`,
+`phone-body-brain`) from GitHub; phone-body is not on PyPI:
+
+```bash
+pipx install git+https://github.com/eliferres/phone-body
+printf 'remember the launch review moved to Thursday\nquit\n' | phone-body-desktop --brain path/to/brain
+```
+
+The install carries the bodies and the brain, not the demo vault or `sync.sh`.
+The sync step runs from a clone, or from a copy of `phone_body/sync.sh` with
+`brain.py` beside it. To run the demo, clone:
+
 ```bash
 git clone https://github.com/eliferres/phone-body.git
 cd phone-body

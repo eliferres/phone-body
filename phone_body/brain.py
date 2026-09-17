@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import datetime
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -42,6 +43,17 @@ def now_stamp() -> str:
 
 def today() -> str:
     return datetime.date.today().isoformat()
+
+
+def package_version() -> str:
+    """sync.sh runs this file as a bare script, outside the package, so the
+    version is read from the __init__.py beside it rather than imported. A copy
+    of sync.sh and brain.py taken without it still syncs; it just cannot say
+    which release it came from."""
+    init = Path(__file__).with_name("__init__.py")
+    if not init.is_file():
+        return "unknown"
+    return re.search(r'^__version__ = "([^"]+)"', init.read_text(encoding="utf-8"), re.MULTILINE).group(1)
 
 
 # ---------------------------------------------------------------- the vault
@@ -130,7 +142,16 @@ def open_brain(option: str | None) -> Brain:
             "This body has no brain: pass --brain <vault path> or set BRAIN_PATH.\n"
         )
         raise SystemExit(2)
-    return Brain(path)
+    return _brain_or_exit(path)
+
+
+def _brain_or_exit(path: str) -> Brain:
+    """A wrong vault path is a usage error: one line and exit 2, no traceback."""
+    try:
+        return Brain(path)
+    except FileNotFoundError as error:
+        sys.stderr.write(f"{error}\n")
+        raise SystemExit(2)
 
 
 # ------------------------------------------------------------- the responder
@@ -216,6 +237,7 @@ def _stamp(path: Path) -> str:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--version", action="version", version=f"phone-body-brain {package_version()}")
     sub = parser.add_subparsers(dest="command", required=True)
     resolver = sub.add_parser("resolve", help="log how divergent files will be resolved")
     resolver.add_argument("vault_a")
@@ -223,7 +245,7 @@ def main(argv: list[str] | None = None) -> int:
     resolver.add_argument("--dry-run", action="store_true", help="report, write nothing")
     args = parser.parse_args(argv)
 
-    lines = resolve(Brain(args.vault_a), Brain(args.vault_b), dry_run=args.dry_run)
+    lines = resolve(_brain_or_exit(args.vault_a), _brain_or_exit(args.vault_b), dry_run=args.dry_run)
     prefix = "would resolve" if args.dry_run else "resolved"
     for line in lines:
         print(f"{prefix}: {line.lstrip('- ')}")
