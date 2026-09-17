@@ -7,6 +7,10 @@ values are normalized before comparing; everything else must match exactly.
 Regenerate the transcript from a real run (never by hand):
 
     UPDATE_DEMO_TRANSCRIPT=1 python3 -m unittest tests.test_demo_transcript
+
+The picture beside it, demo/terminal.svg, is drawn from the same transcript by
+a renderer this repo does not ship: if a regenerated transcript changes what
+the session shows, a maintainer redraws the picture.
 """
 
 import json
@@ -158,16 +162,27 @@ class DemoTranscript(unittest.TestCase):
                 self.assertNotRegex(entry[field], r"/Users/|/private/var|/var/folders|/tmp/tmp")
 
     def test_every_picture_row_comes_from_the_transcript(self):
-        out_lines = [line for entry in self.entries for line in entry["out"].splitlines()]
+        # Both sides lose their timestamps first: a regenerated transcript
+        # carries the new run's clock, and the picture still carries the clock
+        # of the run it was drawn from.
+        out_lines = [
+            without_volatile(line)
+            for entry in self.entries
+            for line in entry["out"].splitlines()
+        ]
         cmd_rows = [row for entry in self.entries for row in wrapped_command_rows(entry["cmd"])]
         rows = picture_rows(PICTURE)
         self.assertTrue(rows, "the picture has no text rows")
         for row in rows:
             shown = row[: -len(ELLIPSIS)] if row.endswith(ELLIPSIS) else row
+            shown = without_volatile(shown)
             with self.subTest(row=row):
                 self.assertTrue(
                     any(line.startswith(shown) for line in out_lines + cmd_rows),
-                    f"picture row {row!r} is not a prefix of any transcript line or command row",
+                    f"picture row {row!r} traces to nothing in demo/transcript.json. "
+                    "demo/terminal.svg is drawn from the transcript by a renderer this "
+                    "repo does not ship, so ask a maintainer to redraw it; never edit "
+                    "the SVG by hand.",
                 )
 
 
