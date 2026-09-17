@@ -12,6 +12,7 @@
 - Changed a wrong `--brain` or `--messages` path to print one line and exit 2 instead of a traceback.
 
 ### Fixed
+- Fixed `--version` on a copied-out `brain.py` crashing when the `__init__.py` beside it carries no version line; it reports `unknown`, which is what that case was meant to do.
 - Fixed the demo receipt starting mid-session: demo/transcript.json now records the three setup lines of the README walkthrough too, so the recorded session is the whole session and the test hides no setup of its own.
 - Fixed the demo receipt test accepting any date in the brain's output: it now checks the real current date instead of blanking both sides, so a frozen or wrong date fails even after a regenerate.
 - Fixed the demo receipt test going red after its own regenerate command: the picture check compared timestamps that a fresh run always changes, and its failure message now says the picture is redrawn by a maintainer, never edited by hand.

@@ -53,7 +53,8 @@ def package_version() -> str:
     init = Path(__file__).with_name("__init__.py")
     if not init.is_file():
         return "unknown"
-    return re.search(r'^__version__ = "([^"]+)"', init.read_text(encoding="utf-8"), re.MULTILINE).group(1)
+    found = re.search(r'^__version__ = "([^"]+)"', init.read_text(encoding="utf-8"), re.MULTILINE)
+    return found.group(1) if found else "unknown"
 
 
 # ---------------------------------------------------------------- the vault

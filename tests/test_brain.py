@@ -122,6 +122,31 @@ class BodyStartup(VaultCase):
             self.assertEqual(f"{command} {__version__}\n", result.stdout)
 
 
+class VersionReading(unittest.TestCase):
+    """brain.py is also copied out on its own, beside sync.sh; see package_version."""
+
+    def copy_beside(self, init_text):
+        work = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, work, ignore_errors=True)
+        shutil.copy(PACKAGE / "brain.py", work / "brain.py")
+        (work / "__init__.py").write_text(init_text, encoding="utf-8")
+        return subprocess.run(
+            [sys.executable, str(work / "brain.py"), "--version"],
+            capture_output=True,
+            text=True,
+        )
+
+    def test_version_comes_from_the_init_file_beside_it(self):
+        result = self.copy_beside('__version__ = "9.9.9"\n')
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual("phone-body-brain 9.9.9\n", result.stdout)
+
+    def test_an_init_file_without_a_version_line_reports_unknown(self):
+        result = self.copy_beside('"""Some other package\'s init."""\n')
+        self.assertEqual(0, result.returncode, result.stderr)
+        self.assertEqual("phone-body-brain unknown\n", result.stdout)
+
+
 class SharedMemory(VaultCase):
     def test_desktop_body_writes_the_fact_into_the_brain(self):
         stdin = io.StringIO("remember the review moved to Thursday\nquit\n")
