@@ -72,8 +72,12 @@ your pocket. So the rules live in the brain and each body's adapter enforces
 them locally.
 
 ```
-phone_body/     brain.py (vault, recall, newest-wins), the two bodies, sync.sh
-demo/           a tiny vault, the walkthrough, run.sh
+phone_body/     brain.py (the vault: recall, remember, newest-wins, sync log)
+                body_desktop.py (a REPL) and body_bot.py (long-polling
+                shaped, offline by design)
+                sync.sh (two-way rsync transport, --dry-run supported)
+demo/           a tiny vault in the memory format, fictional content,
+                plus the walkthrough and run.sh
 docs/           architecture.md (diagram, failure modes), wiring.md (real bot)
 tests/          hermetic: temp vaults, real files, no network
 ```
