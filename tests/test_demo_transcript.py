@@ -1,8 +1,9 @@
 """The demo receipt: demo/transcript.json must be what the commands really print.
 
-Every entry is replayed with bash in a scratch copy of the repo, under the
-setup the README's By hand block runs first. Only machine paths and wall-clock
-values are normalized before comparing; everything else must match exactly.
+Every entry is replayed with bash in a scratch copy of the repo, starting with
+the three setup lines of the README's By hand block, so the receipt needs no
+setup hidden in this file. Only machine paths and wall-clock times are
+normalized before comparing; everything else must match exactly.
 
 Regenerate the transcript from a real run (never by hand):
 
@@ -30,6 +31,7 @@ TRANSCRIPT = REPO / "demo" / "transcript.json"
 PICTURE = REPO / "demo" / "terminal.svg"
 CHECKOUT_PLACEHOLDER = "/path/to/checkout"
 WORK_PLACEHOLDER = "/path/to/work"
+MARKER = "__entry__"  # ends each entry in the one bash session the replay runs
 
 # Every pattern is anchored to the one place a volatile value appears, so a
 # changed word, file name or winner around it still fails the comparison.
@@ -85,9 +87,15 @@ def without_paths(text, pairs):
 
 
 def replay(entries):
-    """Run every entry in order in one scratch copy; return (out, status) pairs
-    with machine paths already swapped for their placeholders."""
+    """Run the session once, as one bash session in a scratch copy of the repo,
+    and split the output back into one (out, status) pair per entry.
+
+    One session, not one process per entry, because the transcript starts by
+    making a scratch directory and the later entries use it: the shell state a
+    reader carries from line to line has to survive here too.
+    """
     scratch = Path(tempfile.mkdtemp())
+    work = None
     try:
         checkout = scratch / "checkout"
         shutil.copytree(
@@ -95,40 +103,59 @@ def replay(entries):
             checkout,
             ignore=shutil.ignore_patterns(".git", "__pycache__", "build", "*.egg-info"),
         )
-        work = scratch / "work"
-        work.mkdir()
-        shutil.copytree(checkout / "demo" / "brain", work / "desk-brain")
-        shutil.copytree(checkout / "demo" / "brain", work / "phone-brain")
+        script = []
+        for entry in entries:
+            script.append(entry["cmd"])
+            # The leading newline is what the split below consumes, so an
+            # entry whose output has no final newline is still captured whole.
+            script.append(f'printf \'\\n{MARKER} %s\\n\' "$?"')
+        script.append(f'printf \'{MARKER} work %s\\n\' "$work"')
+        (scratch / "session.sh").write_text("\n".join(script) + "\n", encoding="utf-8")
+
+        env = dict(os.environ)
+        env.pop("BRAIN_PATH", None)
+        # The transcript says python3; make that the interpreter running the suite.
+        env["PATH"] = os.pathsep.join([str(Path(sys.executable).parent), env.get("PATH", "")])
+        session = subprocess.run(
+            ["bash", str(scratch / "session.sh")],
+            cwd=checkout,
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
+
+        # A marker line ends every entry, and one last line names the scratch
+        # directory the session made, so its path can be given a stable name.
+        chunks = session.stdout.split(f"\n{MARKER} ")
+        if len(chunks) != len(entries) + 2:
+            raise AssertionError(
+                f"expected {len(entries) + 1} markers, got {len(chunks) - 1}; "
+                f"session output:\n{session.stdout}"
+            )
+        work = chunks[-1].split("work ", 1)[1].strip()
 
         # Longest first, so the checkout path is not half-replaced by a prefix.
         pairs = sorted(
             {
                 (str(checkout), CHECKOUT_PLACEHOLDER),
                 (str(checkout.resolve()), CHECKOUT_PLACEHOLDER),
-                (str(work), WORK_PLACEHOLDER),
-                (str(work.resolve()), WORK_PLACEHOLDER),
+                (work, WORK_PLACEHOLDER),
+                (str(Path(work).resolve()), WORK_PLACEHOLDER),
             },
             key=lambda pair: -len(pair[0]),
         )
-        env = dict(os.environ, work=str(work))
-        env.pop("BRAIN_PATH", None)
-        # The transcript says python3; make that the interpreter running the suite.
-        env["PATH"] = os.pathsep.join([str(Path(sys.executable).parent), env.get("PATH", "")])
-
         results = []
-        for entry in entries:
-            ran = subprocess.run(
-                ["bash", "-c", entry["cmd"]],
-                cwd=checkout,
-                env=env,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.STDOUT,
-                text=True,
-            )
-            results.append((without_paths(ran.stdout, pairs), ran.returncode))
+        out = chunks[0]
+        for chunk in chunks[1:-1]:
+            status, _, out_next = chunk.partition("\n")
+            results.append((without_paths(out, pairs), int(status)))
+            out = out_next
         return results
     finally:
         shutil.rmtree(scratch, ignore_errors=True)
+        if work and Path(work).resolve().is_relative_to(Path(tempfile.gettempdir()).resolve()):
+            shutil.rmtree(work, ignore_errors=True)
 
 
 def wrapped_command_rows(cmd, width=PICTURE_CMD_WIDTH):
