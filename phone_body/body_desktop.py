@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import sys
 
+from . import __version__
 from .brain import handle, open_brain
 
 BODY = "desktop"
@@ -33,6 +34,7 @@ def repl(brain, stdin=sys.stdin, stdout=sys.stdout) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("--brain", help="path to the shared vault (or set BRAIN_PATH)")
+    parser.add_argument("--version", action="version", version=f"phone-body-desktop {__version__}")
     args = parser.parse_args(argv)
     repl(open_brain(args.brain))
     return 0
