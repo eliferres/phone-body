@@ -82,6 +82,11 @@ docs/           architecture.md (diagram, failure modes), wiring.md (real bot)
 tests/          hermetic: temp vaults, real files, no network
 ```
 
+A body is not a single file you can lift out on its own: it imports the brain
+through the package, so take the whole `phone_body/` folder (or install it) and
+run the body with `python3 -m phone_body.body_bot`. Only `sync.sh` travels in a
+smaller set, with `brain.py` and `__init__.py` beside it.
+
 Both bodies call one function, `handle()` in `brain.py`. That is the seam where
 your model call goes, and putting it there is what keeps the two bodies one
 entity: the reply depends on the brain, never on which body you reached.
