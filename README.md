@@ -9,19 +9,7 @@ unchanged: a router note, one home per topic, newest wins.
 
 <img src="demo/terminal.svg" width="660" alt="Terminal session showing the desktop body learning a fact, a real sync, and the phone body answering with what the desktop was told.">
 
-## Quick start
-
-Install the three commands (`phone-body-desktop`, `phone-body-bot`,
-`phone-body-brain`) from GitHub; phone-body is not on PyPI:
-
-```bash
-pipx install git+https://github.com/eliferres/phone-body
-printf 'remember the launch review moved to Thursday\nquit\n' | phone-body-desktop --brain path/to/brain
-```
-
-The install carries the bodies and the brain, not the demo vault or `sync.sh`.
-The sync step runs from a clone, or from a copy of `phone_body/sync.sh` with
-`brain.py` beside it. To run the demo, clone:
+## Run the demo
 
 ```bash
 git clone https://github.com/eliferres/phone-body.git
@@ -47,32 +35,57 @@ The bot answers with what you told the desktop. Zero dependencies, Python 3.9+,
 reading the resolution out of the sync log) is
 [demo/WALKTHROUGH.md](demo/WALKTHROUGH.md).
 
-## The four principles
+## Install
 
-**One brain.** Both bodies read and write the same vault. Persona, standing
+Install the three commands (`phone-body-desktop`, `phone-body-bot`,
+`phone-body-brain`) from GitHub; phone-body is not on PyPI:
+
+```bash
+pipx install git+https://github.com/eliferres/phone-body
+printf 'remember the launch review moved to Thursday\nquit\n' | phone-body-desktop --brain path/to/brain
+```
+
+The install carries the bodies and the brain, not the demo vault or `sync.sh`.
+The sync step runs from a clone, or from a copy of `phone_body/sync.sh` with
+`brain.py` beside it.
+
+## How it fits together
+
+One brain. Both bodies read and write the same vault. Persona, standing
 rules, decisions and learned facts live there, never in a body's code. The test
 for anything you are about to add: if I deleted this body and stood up a new one,
 would the entity be less than it was? If yes, it belongs in the brain.
 
-**Sync is the spine.** The vault syncs both ways on a short interval: minutes,
+Sync is the spine. The vault syncs both ways on a short interval: minutes,
 not hours. Conflicts resolve newest-wins per file, and every resolution is
 written to a sync log, so a lost write is visible instead of silent. Bodies must
 tolerate being minutes stale, which means memory is never the authority for
 anything irreversible.
 
-**Bodies are disposable.** A body holds two things: its own credentials, and a
+Bodies are disposable. A body holds two things: its own credentials, and a
 path to the brain. Standing up a new one (second laptop, new bot, borrowed
 terminal) is configuration, not surgery, because there is no logic to port.
 
-**One set of rules.** Guardrails belong to the entity, not the machine. A
+One set of rules. Guardrails belong to the entity, not the machine. A
 spending limit the desk enforces and the phone ignores is a bypass that lives in
 your pocket. So the rules live in the brain and each body's adapter enforces
 them locally.
 
+```
+phone_body/     brain.py (vault, recall, newest-wins), the two bodies, sync.sh
+demo/           a tiny vault, the walkthrough, run.sh
+docs/           architecture.md (diagram, failure modes), wiring.md (real bot)
+tests/          hermetic: temp vaults, real files, no network
+```
+
+Both bodies call one function, `handle()` in `brain.py`. That is the seam where
+your model call goes, and putting it there is what keeps the two bodies one
+entity: the reply depends on the brain, never on which body you reached.
+
 The long version, with the ASCII diagram and the failure modes, is
 [docs/architecture.md](docs/architecture.md).
 
-## The sync contract, verbatim
+## How sync settles a conflict
 
 Two rules and one receipt. This is the whole reconciliation model:
 
@@ -96,24 +109,6 @@ A real line, from step 5 of the walkthrough:
 
 And the contract a body signs, in full: hold your own credentials, hold a path
 to the brain, hold nothing else.
-
-## What is in the box
-
-| Path | Role |
-|---|---|
-| `docs/architecture.md` | The writeup: diagram, four principles, failure modes. |
-| `docs/wiring.md` | How to replace the offline transport with a real chat bot. |
-| `phone_body/brain.py` | The vault: read, recall, remember, newest-wins, sync log. |
-| `phone_body/body_desktop.py` | Desktop body: a REPL. Carries messages, owns nothing. |
-| `phone_body/body_bot.py` | Phone body: the same loop, long-polling shaped, offline. |
-| `phone_body/sync.sh` | Two-way rsync transport, `--dry-run` supported. |
-| `demo/brain/` | A tiny vault in the memory format, fictional content. |
-| `demo/WALKTHROUGH.md` | Teach one body, sync, ask the other, force a conflict. |
-| `tests/test_brain.py` | Hermetic: temp vaults, real files, no network. |
-
-Both bodies call one function, `handle()` in `brain.py`. That is the seam where
-your model call goes, and putting it there is what keeps the two bodies one
-entity: the reply depends on the brain, never on which body you reached.
 
 ## Why not just run two assistants
 
@@ -145,7 +140,3 @@ and recoverable from git when newest-wins takes the write you wanted.
 - A body has read everything. Losing the machine is a memory disclosure, not
   just a lost credential. Decide what may sync to an always-on box before the
   first sync, not after.
-
-## License
-
-MIT
