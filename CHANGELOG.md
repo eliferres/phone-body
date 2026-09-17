@@ -11,6 +11,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Changed
 - Renamed the `skeleton/` folder to the `phone_body` package so an install cannot shadow another package; run the bodies with `python3 -m phone_body.body_desktop` and `python3 -m phone_body.body_bot`, and sync with `phone_body/sync.sh`.
+- Changed the README shape: it opens with the demo, then install, then how the pieces fit together and how sync settles a conflict; the file table is now a short tree.
 - Changed a wrong `--brain` or `--messages` path to print one line and exit 2 instead of a traceback.
 
 ### Fixed
