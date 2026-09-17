@@ -12,6 +12,6 @@ cp -R demo/brain "$work/desk-brain"
 cp -R demo/brain "$work/phone-brain"
 
 printf 'remember the launch review moved to Thursday\nquit\n' \
-  | python3 skeleton/body_desktop.py --brain "$work/desk-brain"
-skeleton/sync.sh "$work/desk-brain" "$work/phone-brain"
-python3 skeleton/body_bot.py --brain "$work/phone-brain" --messages demo/messages.txt
+  | python3 -m phone_body.body_desktop --brain "$work/desk-brain"
+phone_body/sync.sh "$work/desk-brain" "$work/phone-brain"
+python3 -m phone_body.body_bot --brain "$work/phone-brain" --messages demo/messages.txt
