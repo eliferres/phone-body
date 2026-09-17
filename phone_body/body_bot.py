@@ -15,6 +15,7 @@ import argparse
 import sys
 from pathlib import Path
 
+from . import __version__
 from .brain import handle, open_brain
 
 BODY = "phone"
@@ -56,11 +57,16 @@ def main(argv: list[str] | None = None) -> int:
         "--messages",
         help="file of inbound messages, one per line; omit to read stdin",
     )
+    parser.add_argument("--version", action="version", version=f"phone-body-bot {__version__}")
     args = parser.parse_args(argv)
 
+    brain = open_brain(args.brain)
+    if args.messages and not Path(args.messages).is_file():
+        sys.stderr.write(f"No messages file at `{args.messages}`.\n")
+        return 2
     raw = Path(args.messages).read_text(encoding="utf-8") if args.messages else sys.stdin.read()
     messages = [line.strip() for line in raw.splitlines() if line.strip()]
-    serve(open_brain(args.brain), OfflineTransport(messages))
+    serve(brain, OfflineTransport(messages))
     return 0
 
 
