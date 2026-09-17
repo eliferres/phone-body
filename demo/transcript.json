@@ -1,17 +1,17 @@
 [
   {
     "cmd": "printf 'remember the launch review moved to Thursday\\nquit\\n' | python3 -m phone_body.body_desktop --brain \"$work/desk-brain\"",
-    "out": "you> [desktop] Remembered, in the brain: the launch review moved to Thursday",
+    "out": "you> [desktop] Remembered, in the brain: the launch review moved to Thursday\nyou> \n",
     "status": 0
   },
   {
     "cmd": "phone_body/sync.sh \"$work/desk-brain\" \"$work/phone-brain\"",
-    "out": "resolved: 2026-09-03T17:15:17Z memory/learned.md — kept desk-brain (mtime 2026-09-03T17:15:17.198Z), overwrote phone-brain (mtime 2026-08-31T01:08:46.541Z)",
+    "out": "resolved: 2026-09-17T17:55:42Z memory/learned.md — kept desk-brain (mtime 2026-09-17T17:55:41.991Z), overwrote phone-brain (mtime 2026-08-31T01:08:46.541Z)\n",
     "status": 0
   },
   {
     "cmd": "python3 -m phone_body.body_bot --brain \"$work/phone-brain\" --messages demo/messages.txt",
-    "out": "[phone -> demo-chat] daily/2026-09-03.md: Learned through the desktop body: the launch review moved to Thursday | memory/learned.md: 2026-09-03 — the launch review moved to Thursday (learned through the desktop body)",
+    "out": "[phone -> demo-chat] daily/2026-09-17.md: Learned through the desktop body: the launch review moved to Thursday | memory/learned.md: 2026-09-17 — the launch review moved to Thursday (learned through the desktop body)\n",
     "status": 0
   }
 ]
