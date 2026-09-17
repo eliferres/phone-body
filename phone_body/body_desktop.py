@@ -3,7 +3,7 @@
 Owns no memory, no persona and no rules — it opens the brain, forwards what you
 typed to the shared handler, and prints the reply.
 
-    python3 body_desktop.py --brain ../demo/brain
+    python3 -m phone_body.body_desktop --brain demo/brain
 """
 
 from __future__ import annotations
@@ -11,7 +11,7 @@ from __future__ import annotations
 import argparse
 import sys
 
-from brain import handle, open_brain
+from .brain import handle, open_brain
 
 BODY = "desktop"
 

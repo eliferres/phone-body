@@ -13,12 +13,11 @@ import unittest
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-SKELETON = REPO / "skeleton"
-sys.path.insert(0, str(SKELETON))
+PACKAGE = REPO / "phone_body"
+sys.path.insert(0, str(REPO))
 
-import brain as brain_module  # noqa: E402  (needs the path above)
-import body_bot  # noqa: E402
-import body_desktop  # noqa: E402
+from phone_body import body_bot, body_desktop  # noqa: E402  (needs the path above)
+from phone_body import brain as brain_module  # noqa: E402
 
 
 class VaultCase(unittest.TestCase):
@@ -43,7 +42,7 @@ class VaultCase(unittest.TestCase):
 
     def sync(self, *extra):
         return subprocess.run(
-            [str(SKELETON / "sync.sh"), str(self.desk_root), str(self.phone_root), *extra],
+            [str(PACKAGE / "sync.sh"), str(self.desk_root), str(self.phone_root), *extra],
             capture_output=True,
             text=True,
             check=True,
@@ -85,10 +84,11 @@ class BodyStartup(VaultCase):
     def test_a_body_refuses_to_start_without_a_brain_path(self):
         env = {k: v for k, v in os.environ.items() if k != "BRAIN_PATH"}
         result = subprocess.run(
-            [sys.executable, str(SKELETON / "body_desktop.py")],
+            [sys.executable, "-m", "phone_body.body_desktop"],
             capture_output=True,
             text=True,
             env=env,
+            cwd=REPO,
         )
         self.assertEqual(2, result.returncode)
         self.assertIn("no brain", result.stderr)
@@ -177,7 +177,7 @@ class Sync(VaultCase):
 class SyncScriptUsage(VaultCase):
     def test_missing_arguments_exits_2(self):
         result = subprocess.run(
-            [str(SKELETON / "sync.sh"), str(self.desk_root)],
+            [str(PACKAGE / "sync.sh"), str(self.desk_root)],
             capture_output=True,
             text=True,
         )
@@ -186,7 +186,7 @@ class SyncScriptUsage(VaultCase):
 
     def test_unknown_flag_exits_2(self):
         result = subprocess.run(
-            [str(SKELETON / "sync.sh"), str(self.desk_root), str(self.phone_root), "--bogus"],
+            [str(PACKAGE / "sync.sh"), str(self.desk_root), str(self.phone_root), "--bogus"],
             capture_output=True,
             text=True,
         )
@@ -209,10 +209,11 @@ class BotMessageHandling(VaultCase):
         # every other test in this file goes through --messages, leaving that
         # branch unexercised.
         result = subprocess.run(
-            [sys.executable, str(SKELETON / "body_bot.py"), "--brain", str(self.desk_root)],
+            [sys.executable, "-m", "phone_body.body_bot", "--brain", str(self.desk_root)],
             input="remember stdin works too\n",
             capture_output=True,
             text=True,
+            cwd=REPO,
         )
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertIn("Remembered", result.stdout)
@@ -224,9 +225,10 @@ class BotMessageHandling(VaultCase):
             path = fh.name
         self.addCleanup(os.unlink, path)
         result = subprocess.run(
-            [sys.executable, str(SKELETON / "body_bot.py"), "--brain", str(self.desk_root), "--messages", path],
+            [sys.executable, "-m", "phone_body.body_bot", "--brain", str(self.desk_root), "--messages", path],
             capture_output=True,
             text=True,
+            cwd=REPO,
         )
         self.assertEqual(0, result.returncode, result.stderr)
         self.assertEqual(2, result.stdout.count("[phone ->"))
