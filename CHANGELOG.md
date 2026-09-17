@@ -6,6 +6,7 @@
 - Added packaging: `pipx install git+https://github.com/eliferres/phone-body` installs the `phone-body-desktop`, `phone-body-bot` and `phone-body-brain` commands, each with `--version`.
 
 ### Changed
+- Changed the README to say what to copy when taking a body elsewhere: the whole `phone_body/` folder, because a body file on its own cannot import the brain.
 - Changed the README file tree to say again what the old table said: `sync.sh` supports `--dry-run`, the demo vault is fictional content, and the phone body is long-polling shaped and offline by design.
 - Renamed the `skeleton/` folder to the `phone_body` package so an install cannot shadow another package; run the bodies with `python3 -m phone_body.body_desktop` and `python3 -m phone_body.body_bot`, and sync with `phone_body/sync.sh`.
 - Changed the README shape: it opens with the demo, then install, then how the pieces fit together and how sync settles a conflict; the file table is now a short tree.
