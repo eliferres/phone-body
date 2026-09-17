@@ -7,7 +7,7 @@ unchanged: a router note, one home per topic, newest wins.
 
 ![ci](https://github.com/eliferres/phone-body/actions/workflows/ci.yml/badge.svg)
 
-<img src="demo/terminal.svg" width="660" alt="Terminal session showing the desktop body learning a fact, a real sync, and the phone body answering with what the desktop was told.">
+<img src="demo/terminal.svg" width="660" alt="Terminal session showing two copies of the brain being made, the desktop body learning a fact, a real sync, and the phone body answering with what the desktop was told.">
 
 ## Run the demo
 
