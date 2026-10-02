@@ -1,7 +1,7 @@
-"""The demo receipt: demo/transcript.json must be what the commands really print.
+"""The demo transcript: demo/transcript.json must be what the commands really print.
 
 Every entry is replayed with bash in a scratch copy of the repo, starting with
-the three setup lines of the README's By hand block, so the receipt needs no
+the three setup lines of the README's By hand block, so the transcript needs no
 setup hidden in this file. Only machine paths and wall-clock times are
 normalized before comparing; everything else must match exactly.
 

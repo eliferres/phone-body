@@ -106,7 +106,7 @@ class Brain:
         return hits
 
     def remember(self, fact: str, body: str) -> None:
-        """A durable fact goes to its owner note plus today's receipt line, in the
+        """A durable fact goes to its owner note plus a line in today's daily note, in the
         brain — never into the body that happened to hear it."""
         self._append(
             LEARNED_NOTE,

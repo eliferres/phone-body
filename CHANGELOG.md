@@ -6,6 +6,7 @@
 - Added packaging: `pipx install git+https://github.com/eliferres/phone-body` installs the `phone-body-desktop`, `phone-body-bot` and `phone-body-brain` commands, each with `--version`.
 
 ### Changed
+- Changed the README, walkthrough and architecture notes to call the daily note and the sync log by those names.
 - Changed the README to say what to copy when taking a body elsewhere: the whole `phone_body/` folder, because a body file on its own cannot import the brain.
 - Changed the README file tree to say again what the old table said: `sync.sh` supports `--dry-run`, the demo vault is fictional content, and the phone body is long-polling shaped and offline by design.
 - Renamed the `skeleton/` folder to the `phone_body` package so an install cannot shadow another package; run the bodies with `python3 -m phone_body.body_desktop` and `python3 -m phone_body.body_bot`, and sync with `phone_body/sync.sh`.
@@ -14,9 +15,9 @@
 
 ### Fixed
 - Fixed `--version` on a copied-out `brain.py` crashing when the `__init__.py` beside it carries no version line; it reports `unknown`, which is what that case was meant to do.
-- Fixed the demo receipt starting mid-session: demo/transcript.json now records the three setup lines of the README walkthrough too, so the recorded session is the whole session and the test hides no setup of its own.
-- Fixed the demo receipt test accepting any date in the brain's output: it now checks the real current date instead of blanking both sides, so a frozen or wrong date fails even after a regenerate.
-- Fixed the demo receipt test going red after its own regenerate command: the picture check compared timestamps that a fresh run always changes, and its failure message now says the picture is redrawn by a maintainer, never edited by hand.
+- Fixed the demo transcript starting mid-session: demo/transcript.json now records the three setup lines of the README walkthrough too, so the recorded session is the whole session and the test hides no setup of its own.
+- Fixed the demo transcript test accepting any date in the brain's output: it now checks the real current date instead of blanking both sides, so a frozen or wrong date fails even after a regenerate.
+- Fixed the demo transcript test going red after its own regenerate command: the picture check compared timestamps that a fresh run always changes, and its failure message now says the picture is redrawn by a maintainer, never edited by hand.
 - Fixed demo/transcript.json, which was missing the desktop body's closing prompt line and had stale timestamps; a new test replays every entry and fails if the shipped output drifts from a real run.
 - Fixed CI running only the unit tests: it now also runs `./demo/run.sh`, the README's first command, and checks `sync.sh` parses.
 

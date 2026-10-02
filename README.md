@@ -96,7 +96,7 @@ The long version, with the ASCII diagram and the failure modes, is
 
 ## How sync settles a conflict
 
-Two rules and one receipt. This is the whole reconciliation model:
+Two rules and one log. This is the whole reconciliation model:
 
 ```
 newest wins, per file, by modification time

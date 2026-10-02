@@ -82,8 +82,8 @@ python3 -m phone_body.body_bot --brain "$work/phone-brain" --messages demo/messa
 [phone -> demo-chat] daily/<today>.md: Learned through the desktop body: the launch review moved to Thursday | memory/learned.md: <today> — the launch review moved to Thursday (learned through the desktop body)
 ```
 
-Two hits because the fact was written twice on purpose: to its owner note and to
-today's receipt line.
+Two hits because the fact was written twice on purpose: to its owner note and as
+a one-line entry in today's daily note.
 
 Same question, same entity, other body. Nothing about the answer came from the
 bot — the bot only carried the message.

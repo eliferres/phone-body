@@ -47,7 +47,7 @@ everything below is the reasoning that keeps it honest.
 
 The brain is a folder of Markdown notes in the format of
 [agent-memory-vault](https://github.com/eliferres/agent-memory-vault): a small
-always-loaded router, one home per topic, newest wins, receipts in a daily note.
+always-loaded router, one home per topic, newest wins, every write logged in a daily note.
 Persona, standing rules, decisions and learned facts all live there.
 
 The rule that makes the entity singular is negative: **nothing durable may live
