@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+Nothing yet.
+
+## [1.2.0](https://github.com/eliferres/phone-body/releases/tag/v1.2.0) - 2026-10-02
+
 ### Added
 - Added packaging: `pipx install git+https://github.com/eliferres/phone-body` installs the `phone-body-desktop`, `phone-body-bot` and `phone-body-brain` commands, each with `--version`.
 
