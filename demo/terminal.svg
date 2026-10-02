@@ -1,7 +1,8 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 436" role="img" aria-labelledby="t d" font-family="SF Mono, Menlo, Consolas, monospace" font-size="16">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 660 436" role="img" aria-labelledby="t d" font-family="SF Mono, Menlo, Consolas, monospace" font-size="16" xml:space="preserve">
   <title id="t">phone-body demo terminal</title>
   <desc id="d">A terminal session: two copies of the brain vault are made, the desktop body learns a fact, a real two-way sync resolves it into the phone brain, and the phone body answers a question with what the desktop was told, because both bodies read the same brain.</desc>
   <style>
+    text { white-space: pre; }
     .p { fill: #7ee2a8; }
     .cmd { fill: #e8eef5; }
     .dim { fill: #9fb0c0; }
