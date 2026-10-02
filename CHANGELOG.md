@@ -6,6 +6,7 @@
 - Added packaging: `pipx install git+https://github.com/eliferres/phone-body` installs the `phone-body-desktop`, `phone-body-bot` and `phone-body-brain` commands, each with `--version`.
 
 ### Changed
+- Changed the README badge row to show the license, the lowest supported Python and that there are no dependencies, beside the CI status.
 - Changed the README, walkthrough and architecture notes to call the daily note and the sync log by those names.
 - Changed the README to say what to copy when taking a body elsewhere: the whole `phone_body/` folder, because a body file on its own cannot import the brain.
 - Changed the README file tree to say again what the old table said: `sync.sh` supports `--dry-run`, the demo vault is fictional content, and the phone body is long-polling shaped and offline by design.

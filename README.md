@@ -6,6 +6,9 @@ The memory format is [agent-memory-vault](https://github.com/eliferres/agent-mem
 unchanged: a router note, one home per topic, newest wins.
 
 ![ci](https://github.com/eliferres/phone-body/actions/workflows/ci.yml/badge.svg)
+![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
+![python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)
+![dependencies: none](https://img.shields.io/badge/dependencies-none-brightgreen.svg)
 
 <img src="demo/terminal.svg" width="660" alt="Terminal session showing two copies of the brain being made, the desktop body learning a fact, a real sync, and the phone body answering with what the desktop was told.">
 
