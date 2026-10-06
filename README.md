@@ -1,9 +1,6 @@
 # phone-body
 
-The same assistant at your desk and in your pocket, with the same memory, rules, and answers. phone-body is one brain in a plain-file vault, two thin bodies that carry messages to it, and a two-way sync that catches drift between them. The repo is the architecture writeup plus a skeleton you can run offline in a minute.
-
-The memory format is [agent-memory-vault](https://github.com/eliferres/agent-memory-vault),
-unchanged: a router note, one home per topic, newest wins.
+phone-body is one brain in a plain-file vault, two thin bodies that carry messages to it, and a two-way sync that catches drift between them.
 
 ![ci](https://github.com/eliferres/phone-body/actions/workflows/ci.yml/badge.svg)
 ![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)
@@ -11,6 +8,13 @@ unchanged: a router note, one home per topic, newest wins.
 ![dependencies: none](https://img.shields.io/badge/dependencies-none-brightgreen.svg)
 
 <img src="demo/terminal.svg" width="660" alt="Terminal session showing two copies of the brain being made, the desktop body learning a fact, a real sync, and the phone body answering with what the desktop was told.">
+
+## What it does
+
+The same assistant at your desk and in your pocket, with the same memory, rules, and answers. The repo is the architecture writeup plus a skeleton you can run offline in a minute.
+
+The memory format is [agent-memory-vault](https://github.com/eliferres/agent-memory-vault),
+unchanged: a router note, one home per topic, newest wins.
 
 ## Run the demo
 
