@@ -44,11 +44,20 @@ CLOCK = [
 
 # Dates, on the other hand, are checked: today's date is substituted into the
 # transcript and the real output has to carry it.
+# The brain keeps two clocks: a sync stamps its resolutions in UTC, and a note
+# is named and dated by the local day. Each pattern names the clock it reads,
+# so the check also holds in the hours when the two dates differ.
 DATED = [
-    re.compile(r"^resolved: (\d{4}-\d\d-\d\d)T", re.MULTILINE),
-    re.compile(r"\bdaily/(\d{4}-\d\d-\d\d)\.md: "),
-    re.compile(r"memory/learned\.md: (\d{4}-\d\d-\d\d) \u2014 "),
+    (re.compile(r"^resolved: (\d{4}-\d\d-\d\d)T", re.MULTILINE), "utc"),
+    (re.compile(r"\bdaily/(\d{4}-\d\d-\d\d)\.md: "), "local"),
+    (re.compile(r"memory/learned\.md: (\d{4}-\d\d-\d\d) \u2014 "), "local"),
 ]
+
+
+def today_on(clock):
+    if clock == "utc":
+        return datetime.datetime.now(datetime.timezone.utc).date().isoformat()
+    return datetime.date.today().isoformat()
 
 ELLIPSIS = "…"
 SVG_NS = "{http://www.w3.org/2000/svg}"
@@ -64,16 +73,16 @@ def with_todays_dates(text, today=None):
     """The transcript was captured on the day it was regenerated; the brain
     writes the date of the run. So the expected text moves to today, and a date
     the brain got wrong (a frozen clock, a stale note name) still fails."""
-    today = today or datetime.date.today().isoformat()
-    for pattern in DATED:
-        text = pattern.sub(lambda m: m.group(0).replace(m.group(1), today), text)
+    for pattern, clock in DATED:
+        day = today or today_on(clock)
+        text = pattern.sub(lambda m, day=day: m.group(0).replace(m.group(1), day), text)
     return text
 
 
 def without_dates(text):
     """For comparing two stored artifacts, the transcript and the picture drawn
     from it, where neither side can be moved to today."""
-    for pattern in DATED:
+    for pattern, _clock in DATED:
         text = pattern.sub(lambda m: m.group(0).replace(m.group(1), "<date>"), text)
     return text
 
